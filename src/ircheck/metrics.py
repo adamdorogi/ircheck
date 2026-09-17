@@ -16,3 +16,23 @@ def ndcg_at_k(ranked: Sequence[str], relevant: Collection[str], k: int) -> float
     actual = sum(1 / log2(rank + 1) for rank, doc in enumerate(ranked[:k], 1) if doc in relevant)
     ideal = sum(1 / log2(rank + 1) for rank in range(1, min(k, len(relevant)) + 1))
     return actual / ideal if ideal else 0.0
+
+
+def percentile(values: Sequence[float], percent: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    lower, remainder = divmod((len(ordered) - 1) * percent / 100, 1)
+    index = int(lower)
+    if not remainder:
+        return ordered[index]
+    return ordered[index] + remainder * (ordered[index + 1] - ordered[index])
+
+
+def score_at_k(hits: Sequence[str], relevant: Collection[str], k: int) -> dict[str, float]:
+    return {
+        f"ndcg@{k}": ndcg_at_k(hits, relevant, k),
+        f"mrr@{k}": mrr_at_k(hits, relevant, k),
+        f"recall@{k}": recall_at_k(hits, relevant, k),
+        f"hitrate@{k}": float(bool(set(hits[:k]).intersection(relevant))),
+    }

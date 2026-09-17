@@ -1,0 +1,1 @@
+"""Retrieval target adapters."""

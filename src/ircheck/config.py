@@ -1,57 +1,90 @@
-import json
 from pathlib import Path
+from typing import Annotated, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    JsonValue,
+    StringConstraints,
+    field_validator,
+)
+
+QUALITY_METRICS = ("ndcg", "mrr", "recall", "hitrate")
+NonEmpty = Annotated[str, StringConstraints(min_length=1)]
+Fraction = Annotated[float, Field(ge=0, le=1, strict=True)]
 
 
-class Query(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    id: str = Field(min_length=1)
-    query: str = Field(min_length=1)
-    tags: list[str] = Field(default_factory=list)
-    relevant: list[str]
+class ConfigModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
-class HttpTarget(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+class Query(ConfigModel):
+    id: NonEmpty
+    query: NonEmpty
+    tags: list[NonEmpty] = Field(default_factory=list)
+    relevant: list[NonEmpty]
 
-    type: str = "http"
+    @field_validator("query")
+    @classmethod
+    def query_has_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("query must contain text")
+        return value
+
+    @field_validator("tags")
+    @classmethod
+    def unique_tags(cls, value: list[str]) -> list[str]:
+        return list(dict.fromkeys(value))
+
+
+class HttpTarget(ConfigModel):
+    type: Literal["http"]
     url: HttpUrl
-    id_path: str = "results[].id"
+    method: Literal["GET", "POST"] = "POST"
+    query_template: dict[str, JsonValue] | None = None
+    params: dict[str, JsonValue] | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
+    id_path: NonEmpty = "results[].id"
 
 
-class Suite(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
+class Suite(ConfigModel):
     dataset: Path
     target: HttpTarget
-    k: int = Field(default=10, ge=1)
-    concurrency: int = Field(default=8, ge=1)
-    timeout: float = Field(default=10, gt=0)
-
+    k: int = Field(default=10, gt=0, strict=True)
+    concurrency: int = Field(default=8, gt=0, strict=True)
+    timeout: float = Field(default=10.0, gt=0, strict=True)
+    max_drop: Fraction = 0.02
 
 def load_suite(path: Path) -> Suite:
-    suite = Suite.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
-    return suite.model_copy(update={"dataset": path.parent / suite.dataset})
+    try:
+        suite = Suite.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+        suite.dataset = (path.parent / suite.dataset).resolve()
+    except (OSError, ValueError, yaml.YAMLError) as error:
+        raise ValueError(f"{path}: {error}") from error
+    return suite
 
 
 def load_queries(path: Path) -> list[Query]:
     queries: list[Query] = []
     seen: set[str] = set()
-    with path.open(encoding="utf-8") as rows:
-        for line_no, row in enumerate(rows, 1):
-            if not row.strip():
-                continue
-            try:
-                query = Query.model_validate_json(row)
-            except (ValidationError, json.JSONDecodeError) as exc:
-                raise ValueError(f"{path}:{line_no}: {exc}") from exc
-            if query.id in seen:
-                raise ValueError(f"{path}:{line_no}: duplicate query ID {query.id!r}")
-            seen.add(query.id)
-            queries.append(query)
+    try:
+        with path.open(encoding="utf-8") as stream:
+            for number, line in enumerate(stream, 1):
+                if not line.strip():
+                    continue
+                try:
+                    query = Query.model_validate_json(line)
+                    if query.id in seen:
+                        raise ValueError(f"duplicate query id {query.id!r}")
+                except ValueError as error:
+                    raise ValueError(f"{path}:{number}: {error}") from error
+                seen.add(query.id)
+                queries.append(query)
+    except (OSError, UnicodeError) as error:
+        raise ValueError(f"{path}: {error}") from error
     if not queries:
-        raise ValueError(f"{path}: no queries")
+        raise ValueError(f"{path}: dataset has no queries")
     return queries
