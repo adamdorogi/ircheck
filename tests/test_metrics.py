@@ -15,3 +15,7 @@ def test_empty_results() -> None:
     assert recall_at_k([], {"a"}, 10) == 0.0
     assert mrr_at_k([], {"a"}, 10) == 0.0
     assert ndcg_at_k([], {"a"}, 10) == 0.0
+
+
+def test_duplicate_hits_do_not_inflate_dcg() -> None:
+    assert ndcg_at_k(["a", "a", "a"], {"a"}, 10) == 1.0

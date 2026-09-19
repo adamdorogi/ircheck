@@ -11,7 +11,7 @@ from pydantic import Field, model_validator
 
 from .adapters.http import HttpAdapter
 from .config import QUALITY_METRICS, ConfigModel, Query, Suite
-from .metrics import percentile, score_at_k
+from .metrics import percentile, score_at_k, unique_ids
 
 
 class Adapter(Protocol):
@@ -146,7 +146,7 @@ async def run_suite(
     results: list[QueryResult] = []
     for query, (hits, latency, error) in zip(queries, outputs, strict=True):
         grades = list(dict.fromkeys(query.relevant))
-        ranked = hits[:suite.k]
+        ranked = unique_ids(hits)[:suite.k]
         results.append(
             QueryResult(
                 id=query.id,
