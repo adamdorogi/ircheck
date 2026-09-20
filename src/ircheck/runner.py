@@ -10,8 +10,8 @@ import httpx
 from pydantic import Field, model_validator
 
 from .adapters.http import HttpAdapter
-from .config import QUALITY_METRICS, ConfigModel, Query, Suite
-from .metrics import percentile, score_at_k, unique_ids
+from .config import QUALITY_METRICS, ConfigModel, Grade, Query, Suite
+from .metrics import first_relevant_rank, percentile, positive_grades, score_at_k, unique_ids
 
 
 class Adapter(Protocol):
@@ -24,6 +24,7 @@ class QueryResult(ConfigModel):
     tags: list[str]
     expected: list[str]
     hits: list[str]
+    grades: dict[str, Grade] = Field(default_factory=dict)
     rank: int | None = Field(default=None, gt=0)
     metrics: dict[str, float]
     latency_ms: float | None = Field(default=None, ge=0)
@@ -145,7 +146,7 @@ async def run_suite(
 
     results: list[QueryResult] = []
     for query, (hits, latency, error) in zip(queries, outputs, strict=True):
-        grades = list(dict.fromkeys(query.relevant))
+        grades = positive_grades(query.relevant)
         ranked = unique_ids(hits)[:suite.k]
         results.append(
             QueryResult(
@@ -154,7 +155,8 @@ async def run_suite(
                 tags=query.tags,
                 expected=list(grades),
                 hits=ranked,
-                rank=next((i for i, hit in enumerate(ranked, 1) if hit in grades), None),
+                grades=grades,
+                rank=first_relevant_rank(ranked, grades),
                 metrics=score_at_k(ranked, grades, suite.k),
                 latency_ms=latency,
                 error=error,

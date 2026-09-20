@@ -14,6 +14,7 @@ from pydantic import (
 
 QUALITY_METRICS = ("ndcg", "mrr", "recall", "hitrate")
 NonEmpty = Annotated[str, StringConstraints(min_length=1)]
+Grade = Annotated[float, Field(ge=0, strict=True, allow_inf_nan=False)]
 Fraction = Annotated[float, Field(ge=0, le=1, strict=True)]
 
 
@@ -25,7 +26,7 @@ class Query(ConfigModel):
     id: NonEmpty
     query: NonEmpty
     tags: list[NonEmpty] = Field(default_factory=list)
-    relevant: list[NonEmpty]
+    relevant: list[NonEmpty] | dict[NonEmpty, Grade]
 
     @field_validator("query")
     @classmethod

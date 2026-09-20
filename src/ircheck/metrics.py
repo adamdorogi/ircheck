@@ -1,46 +1,74 @@
-from collections.abc import Collection, Sequence
-from math import log2
+import math
+from collections.abc import Iterable, Mapping, Sequence
+
+Relevance = Iterable[str] | Mapping[str, float]
 
 
-def recall_at_k(ranked: Sequence[str], relevant: Collection[str], k: int) -> float:
-    if not relevant:
-        return 0.0
-    ranked = unique_ids(ranked)
-    return len(set(ranked[:k]).intersection(relevant)) / len(relevant)
-
-
-def mrr_at_k(ranked: Sequence[str], relevant: Collection[str], k: int) -> float:
-    ranked = unique_ids(ranked)
-    return next((1 / rank for rank, doc in enumerate(ranked[:k], 1) if doc in relevant), 0.0)
-
-
-def ndcg_at_k(ranked: Sequence[str], relevant: Collection[str], k: int) -> float:
-    ranked = unique_ids(ranked)
-    actual = sum(1 / log2(rank + 1) for rank, doc in enumerate(ranked[:k], 1) if doc in relevant)
-    ideal = sum(1 / log2(rank + 1) for rank in range(1, min(k, len(relevant)) + 1))
-    return actual / ideal if ideal else 0.0
-
-
-def unique_ids(hits: Sequence[str]) -> list[str]:
+def unique_ids(hits: Iterable[str]) -> list[str]:
     return list(dict.fromkeys(hits))
 
 
-def percentile(values: Sequence[float], percent: float) -> float:
-    if not values:
+def positive_grades(relevant: Relevance) -> dict[str, float]:
+    if isinstance(relevant, Mapping):
+        return {doc_id: grade for doc_id, grade in relevant.items() if grade > 0}
+    return dict.fromkeys(relevant, 1.0)
+
+
+def first_relevant_rank(hits: Sequence[str], relevant: Mapping[str, float]) -> int | None:
+    return next((rank for rank, doc_id in enumerate(hits, 1) if doc_id in relevant), None)
+
+
+def _ndcg(hits: Sequence[str], grades: Mapping[str, float], k: int) -> float:
+    if not grades or not hits:
         return 0.0
-    ordered = sorted(values)
-    lower, remainder = divmod((len(ordered) - 1) * percent / 100, 1)
-    index = int(lower)
-    if not remainder:
-        return ordered[index]
-    return ordered[index] + remainder * (ordered[index + 1] - ordered[index])
+    ideal = sorted(grades.values(), reverse=True)[:k]
+    max_grade = ideal[0]
+
+    def dcg(ranked_grades: Iterable[float]) -> float:
+        # Scale both DCGs by 2**-max_grade to keep large grades finite.
+        return math.fsum(
+            math.exp2(grade - max_grade) * -math.expm1(-grade * math.log(2)) / math.log2(rank + 1)
+            for rank, grade in enumerate(ranked_grades, 1)
+        )
+
+    return dcg(grades.get(doc_id, 0.0) for doc_id in hits) / dcg(ideal)
 
 
-def score_at_k(hits: Sequence[str], relevant: Collection[str], k: int) -> dict[str, float]:
-    hits = unique_ids(hits)
+def score_at_k(hits: Iterable[str], relevant: Relevance, k: int) -> dict[str, float]:
+    grades = positive_grades(relevant)
+    ranked = unique_ids(hits)[: max(0, k)]
+    rank = first_relevant_rank(ranked, grades)
     return {
-        f"ndcg@{k}": ndcg_at_k(hits, relevant, k),
-        f"mrr@{k}": mrr_at_k(hits, relevant, k),
-        f"recall@{k}": recall_at_k(hits, relevant, k),
-        f"hitrate@{k}": float(bool(set(hits[:k]).intersection(relevant))),
+        f"ndcg@{k}": _ndcg(ranked, grades, k),
+        f"mrr@{k}": 1 / rank if rank else 0.0,
+        f"recall@{k}": sum(doc_id in grades for doc_id in ranked) / len(grades) if grades else 0.0,
+        f"hitrate@{k}": float(rank is not None),
     }
+
+
+def recall_at_k(hits: Iterable[str], relevant: Relevance, k: int) -> float:
+    return score_at_k(hits, relevant, k)[f"recall@{k}"]
+
+
+def mrr_at_k(hits: Iterable[str], relevant: Relevance, k: int) -> float:
+    return score_at_k(hits, relevant, k)[f"mrr@{k}"]
+
+
+def ndcg_at_k(hits: Iterable[str], relevant: Relevance, k: int) -> float:
+    return score_at_k(hits, relevant, k)[f"ndcg@{k}"]
+
+
+def hit_rate_at_k(hits: Iterable[str], relevant: Relevance, k: int) -> float:
+    return score_at_k(hits, relevant, k)[f"hitrate@{k}"]
+
+
+def percentile(values: Iterable[float], percent: float) -> float:
+    if not 0 <= percent <= 100:
+        raise ValueError("percentile must be between 0 and 100")
+    ordered = sorted(values)
+    if not ordered:
+        return 0.0
+    position = (len(ordered) - 1) * percent / 100
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
