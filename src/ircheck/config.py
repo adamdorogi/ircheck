@@ -51,9 +51,22 @@ class HttpTarget(ConfigModel):
     id_path: NonEmpty = "results[].id"
 
 
+class OpenSearchTarget(ConfigModel):
+    type: Literal["opensearch"]
+    url: HttpUrl
+    index: NonEmpty
+    query_template: dict[str, JsonValue]
+    headers: dict[str, str] = Field(default_factory=dict)
+    id_field: NonEmpty = "_id"
+    id_path: NonEmpty | None = None
+
+
+Target = Annotated[HttpTarget | OpenSearchTarget, Field(discriminator="type")]
+
+
 class Suite(ConfigModel):
     dataset: Path
-    target: HttpTarget
+    target: Target
     k: int = Field(default=10, gt=0, strict=True)
     concurrency: int = Field(default=8, gt=0, strict=True)
     timeout: float = Field(default=10.0, gt=0, strict=True)

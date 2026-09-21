@@ -10,7 +10,8 @@ import httpx
 from pydantic import Field, model_validator
 
 from .adapters.http import HttpAdapter
-from .config import QUALITY_METRICS, ConfigModel, Grade, Query, Suite
+from .adapters.opensearch import OpenSearchAdapter
+from .config import QUALITY_METRICS, ConfigModel, Grade, HttpTarget, Query, Suite
 from .metrics import first_relevant_rank, percentile, positive_grades, score_at_k, unique_ids
 
 
@@ -131,7 +132,11 @@ async def run_suite(
                 ),
             )
         )
-        adapter = HttpAdapter(client, target)
+        adapter = (
+            HttpAdapter(client, target)
+            if isinstance(target, HttpTarget)
+            else OpenSearchAdapter(client, target)
+        )
         url = httpx.URL(str(adapter.target.url))
         target_label = str(url.copy_with(username=None, password=None, query=None, fragment=None))
 
