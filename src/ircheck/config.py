@@ -71,6 +71,7 @@ class Suite(ConfigModel):
     concurrency: int = Field(default=8, gt=0, strict=True)
     timeout: float = Field(default=10.0, gt=0, strict=True)
     max_drop: Fraction = 0.02
+    tag_max_drop: dict[NonEmpty, Fraction] = Field(default_factory=dict)
 
 def load_suite(path: Path) -> Suite:
     try:
