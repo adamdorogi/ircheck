@@ -12,6 +12,9 @@ dependencies = [
     "pyyaml==6.0.2",
 ]
 
+[project.scripts]
+ircheck = "ircheck.cli:main"
+
 [build-system]
 requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
