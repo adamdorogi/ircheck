@@ -1,0 +1,1132 @@
+{
+  "schema_version": 1,
+  "target": "http://localhost:8089/search",
+  "k": 10,
+  "concurrency": 8,
+  "warmup": 0,
+  "elapsed_s": 0.2637312229780946,
+  "metrics": {
+    "ndcg@10": 0.9580398375499953,
+    "mrr@10": 0.95,
+    "recall@10": 0.9857142857142858,
+    "hitrate@10": 1.0,
+    "p50_ms": 24.5232559973374,
+    "p95_ms": 36.8353861005744
+  },
+  "tags": {
+    "exact_sku": {
+      "count": 10,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0,
+        "p50_ms": 34.48905648838263,
+        "p95_ms": 111.46143491205304
+      }
+    },
+    "natural_lang": {
+      "count": 15,
+      "metrics": {
+        "ndcg@10": 0.9020929542833224,
+        "mrr@10": 0.8833333333333333,
+        "recall@10": 0.9666666666666667,
+        "hitrate@10": 1.0,
+        "p50_ms": 24.5232559973374,
+        "p95_ms": 26.81346318568103
+      }
+    },
+    "negation": {
+      "count": 3,
+      "metrics": {
+        "ndcg@10": 0.8769765845238192,
+        "mrr@10": 0.8333333333333334,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0,
+        "p50_ms": 25.773433007998392,
+        "p95_ms": 26.674604788422585
+      }
+    },
+    "synonym": {
+      "count": 10,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0,
+        "p50_ms": 23.710648994892836,
+        "p95_ms": 25.58270071458537
+      }
+    },
+    "typo": {
+      "count": 3,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0,
+        "p50_ms": 24.03938802308403,
+        "p95_ms": 24.520479404600337
+      }
+    }
+  },
+  "queries": [
+    {
+      "id": "q01",
+      "query": "DRV-TX25-50",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "DRV-TX25-50"
+      ],
+      "hits": [
+        "DRV-TX25-50",
+        "DRV-TX25-25"
+      ],
+      "grades": {
+        "DRV-TX25-50": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 171.94824700709432,
+      "error": null
+    },
+    {
+      "id": "q02",
+      "query": "FLT-N95-20",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "FLT-N95-20"
+      ],
+      "hits": [
+        "FLT-N95-20",
+        "ORING-EPDM-020",
+        "FLT-A2P3-02"
+      ],
+      "grades": {
+        "FLT-N95-20": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 33.391571982065216,
+      "error": null
+    },
+    {
+      "id": "q03",
+      "query": "GLV-NTR-L-BLK",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "GLV-NTR-L-BLK"
+      ],
+      "hits": [
+        "GLV-NTR-L-BLK",
+        "GLV-CUT-L"
+      ],
+      "grades": {
+        "GLV-NTR-L-BLK": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 32.83069800818339,
+      "error": null
+    },
+    {
+      "id": "q04",
+      "query": "HXN-SS316-M12",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "HXN-SS316-M12"
+      ],
+      "hits": [
+        "HXN-SS316-M12",
+        "HXN-SS304-M12",
+        "ROD-SS316-M12",
+        "WASH-M12-SS316",
+        "BOLT-SS316-M12-40",
+        "WASH-M12-SPR",
+        "NUT-FLANG-M12",
+        "BOLT-M12-80",
+        "ANCH-M12-80",
+        "WASH-M12-ZP"
+      ],
+      "grades": {
+        "HXN-SS316-M12": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 32.195156993111596,
+      "error": null
+    },
+    {
+      "id": "q05",
+      "query": "SEAL-EPDM-044",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "SEAL-EPDM-044"
+      ],
+      "hits": [
+        "SEAL-EPDM-044",
+        "SHEET-EPDM-2",
+        "ORING-EPDM-020",
+        "ORING-EPDM-030",
+        "ORING-EPDM-040",
+        "GROM-22-EPDM",
+        "TAPE-PTFE-GAS",
+        "TAPE-PTFE-12"
+      ],
+      "grades": {
+        "SEAL-EPDM-044": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 35.586540994700044,
+      "error": null
+    },
+    {
+      "id": "q06",
+      "query": "BRG-6205-2RS",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "BRG-6205-2RS"
+      ],
+      "hits": [
+        "BRG-6205-2RS",
+        "BRG-6205-ZZ"
+      ],
+      "grades": {
+        "BRG-6205-2RS": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 37.533109018113464,
+      "error": null
+    },
+    {
+      "id": "q07",
+      "query": "TAPE-PTFE-12",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "TAPE-PTFE-12"
+      ],
+      "hits": [
+        "TAPE-PTFE-12",
+        "TAPE-PTFE-GAS",
+        "LUBE-PTFE-DRY",
+        "TAPE-MASK-LOW",
+        "TAPE-MASK-HIGH"
+      ],
+      "grades": {
+        "TAPE-PTFE-12": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 36.53636199305765,
+      "error": null
+    },
+    {
+      "id": "q08",
+      "query": "WASH-M12-SS316",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "WASH-M12-SS316"
+      ],
+      "hits": [
+        "WASH-M12-SS316",
+        "WASH-M12-SPR",
+        "WASH-M12-ZP",
+        "WASH-M12-SS304",
+        "ROD-SS316-M12",
+        "HXN-SS316-M12",
+        "BOLT-SS316-M12-40",
+        "NUT-FLANG-M12",
+        "BOLT-M12-80",
+        "ANCH-M12-80"
+      ],
+      "grades": {
+        "WASH-M12-SS316": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 36.42709998530336,
+      "error": null
+    },
+    {
+      "id": "q09",
+      "query": "BIT-HSS-065",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "BIT-HSS-065"
+      ],
+      "hits": [
+        "BIT-HSS-065",
+        "BIT-HSS-070",
+        "DRV-TX25-50",
+        "DRV-TX25-25"
+      ],
+      "grades": {
+        "BIT-HSS-065": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 23.34731101291254,
+      "error": null
+    },
+    {
+      "id": "q10",
+      "query": "ANCH-M10-80",
+      "tags": [
+        "exact_sku"
+      ],
+      "expected": [
+        "ANCH-M10-80"
+      ],
+      "hits": [
+        "ANCH-M10-80",
+        "ANCH-M12-80",
+        "BOLT-M12-80"
+      ],
+      "grades": {
+        "ANCH-M10-80": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 21.963745006360114,
+      "error": null
+    },
+    {
+      "id": "q11",
+      "query": "Allen key 5 mm",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "HEX-KEY-05",
+        "HEX-KEY-SET-09"
+      ],
+      "hits": [
+        "HEX-KEY-05",
+        "HEX-KEY-SET-09",
+        "CLAMP-SS-25-40",
+        "SHEET-EPDM-2",
+        "PLUG-MASON-08",
+        "PLUG-MASON-06",
+        "BOLT-M12-80",
+        "ANCH-M12-80",
+        "ORING-EPDM-020",
+        "ORING-EPDM-030"
+      ],
+      "grades": {
+        "HEX-KEY-05": 3.0,
+        "HEX-KEY-SET-09": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 21.894321020226926,
+      "error": null
+    },
+    {
+      "id": "q12",
+      "query": "zip ties UV black",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "TIE-UV-200",
+        "TIE-UV-300"
+      ],
+      "hits": [
+        "TIE-UV-200",
+        "TIE-UV-300",
+        "GLV-NTR-L-BLK",
+        "TIE-NYLON-WHT"
+      ],
+      "grades": {
+        "TIE-UV-200": 3.0,
+        "TIE-UV-300": 2.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 21.11488999798894,
+      "error": null
+    },
+    {
+      "id": "q13",
+      "query": "mole grips curved jaw",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "PLIER-LOCK-250"
+      ],
+      "hits": [
+        "PLIER-LOCK-250"
+      ],
+      "grades": {
+        "PLIER-LOCK-250": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 23.201695003081113,
+      "error": null
+    },
+    {
+      "id": "q14",
+      "query": "roll pin 4 mm",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "PIN-SPR-04",
+        "PIN-SPR-SET"
+      ],
+      "hits": [
+        "PIN-SPR-04",
+        "PIN-SPR-SET",
+        "CLAMP-SS-25-40",
+        "SHEET-EPDM-2",
+        "PLUG-MASON-08",
+        "PLUG-MASON-06",
+        "BOLT-M12-80",
+        "ANCH-M12-80",
+        "ORING-EPDM-020",
+        "ORING-EPDM-030"
+      ],
+      "grades": {
+        "PIN-SPR-04": 3.0,
+        "PIN-SPR-SET": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.44614199339412,
+      "error": null
+    },
+    {
+      "id": "q15",
+      "query": "Teflon tape for water fittings",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "TAPE-PTFE-12"
+      ],
+      "hits": [
+        "TAPE-PTFE-12",
+        "TAPE-PTFE-GAS",
+        "TAPE-MASK-LOW",
+        "TAPE-MASK-HIGH"
+      ],
+      "grades": {
+        "TAPE-PTFE-12": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 23.181305004982278,
+      "error": null
+    },
+    {
+      "id": "q16",
+      "query": "circlip pliers internal",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "PLIER-RING-INT"
+      ],
+      "hits": [
+        "PLIER-RING-INT",
+        "PLIER-RING-EXT",
+        "PLIER-LOCK-250"
+      ],
+      "grades": {
+        "PLIER-RING-INT": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 22.934890002943575,
+      "error": null
+    },
+    {
+      "id": "q17",
+      "query": "split lock washer m12",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "WASH-M12-SPR"
+      ],
+      "hits": [
+        "WASH-M12-SPR",
+        "NUT-LOCK-M12-316",
+        "WASH-M12-ZP",
+        "WASH-M12-SS304",
+        "WASH-M12-SS316",
+        "PLIER-LOCK-250",
+        "NUT-FLANG-M12",
+        "BOLT-M12-80",
+        "ANCH-M12-80",
+        "HXN-SS304-M12"
+      ],
+      "grades": {
+        "WASH-M12-SPR": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 25.837299006525427,
+      "error": null
+    },
+    {
+      "id": "q18",
+      "query": "shrink sleeve 3:1",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "TUBE-HS-31"
+      ],
+      "hits": [
+        "TUBE-HS-31",
+        "TUBE-HS-21"
+      ],
+      "grades": {
+        "TUBE-HS-31": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.31607901235111,
+      "error": null
+    },
+    {
+      "id": "q19",
+      "query": "rubber grommet 22 mm",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "GROM-22-EPDM"
+      ],
+      "hits": [
+        "GROM-22-EPDM",
+        "SHEET-EPDM-2",
+        "ORING-EPDM-020",
+        "ORING-EPDM-030",
+        "ORING-EPDM-040",
+        "BRG-6205-2RS",
+        "CLAMP-SS-25-40",
+        "PLUG-MASON-08",
+        "PLUG-MASON-06",
+        "BOLT-M12-80"
+      ],
+      "grades": {
+        "GROM-22-EPDM": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 25.271525024436414,
+      "error": null
+    },
+    {
+      "id": "q20",
+      "query": "rawl plug 8 mm masonry",
+      "tags": [
+        "synonym"
+      ],
+      "expected": [
+        "PLUG-MASON-08"
+      ],
+      "hits": [
+        "PLUG-MASON-08",
+        "PLUG-MASON-06",
+        "CLAMP-SS-25-40",
+        "SHEET-EPDM-2",
+        "BOLT-M12-80",
+        "ANCH-M12-80",
+        "ORING-EPDM-020",
+        "ORING-EPDM-030",
+        "ORING-EPDM-040",
+        "GROM-22-EPDM"
+      ],
+      "grades": {
+        "PLUG-MASON-08": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.219602986704558,
+      "error": null
+    },
+    {
+      "id": "q21",
+      "query": "which filter fits a half mask for spray painting",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "FLT-A2P3-02",
+        "MASK-HALF-M"
+      ],
+      "hits": [
+        "FLT-A2P3-02",
+        "MASK-HALF-M",
+        "FLT-N95-20",
+        "TAPE-MASK-LOW",
+        "TAPE-MASK-HIGH"
+      ],
+      "grades": {
+        "FLT-A2P3-02": 3.0,
+        "MASK-HALF-M": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 21.10746898688376,
+      "error": null
+    },
+    {
+      "id": "q22",
+      "query": "hex nuts for a seawater pump with m12 threads",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "HXN-SS316-M12",
+        "NUT-LOCK-M12-316"
+      ],
+      "hits": [
+        "NUT-FLANG-M12",
+        "BOLT-M12-80",
+        "HXN-SS304-M12",
+        "HXN-SS316-M12",
+        "SEAL-EPDM-044",
+        "BOLT-ZP-M12-35",
+        "BOLT-SS304-M12-40",
+        "BRG-6205-2RS",
+        "BOLT-SS316-M12-40",
+        "HEX-KEY-05"
+      ],
+      "grades": {
+        "HXN-SS316-M12": 3.0,
+        "NUT-LOCK-M12-316": 2.0
+      },
+      "rank": 4,
+      "metrics": {
+        "ndcg@10": 0.3390090350877799,
+        "mrr@10": 0.25,
+        "recall@10": 0.5,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.72575000138022,
+      "error": null
+    },
+    {
+      "id": "q23",
+      "query": "what will keep rain out of a panel cable hole",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "GLAND-IP68-M20",
+        "GROM-22-EPDM"
+      ],
+      "hits": [
+        "GLAND-IP68-M20",
+        "LABEL-VINYL-OUT",
+        "LABEL-PAPER-OUT",
+        "GROM-22-EPDM",
+        "TIE-NYLON-WHT",
+        "TIE-UV-300",
+        "TIE-UV-200"
+      ],
+      "grades": {
+        "GLAND-IP68-M20": 3.0,
+        "GROM-22-EPDM": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 0.9737576937588317,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.65254202252254,
+      "error": null
+    },
+    {
+      "id": "q24",
+      "query": "saftey gogles over glasses",
+      "tags": [
+        "natural_lang",
+        "typo"
+      ],
+      "expected": [
+        "GOGGLE-OTG-CLEAR"
+      ],
+      "hits": [
+        "GOGGLE-OTG-CLEAR"
+      ],
+      "grades": {
+        "GOGGLE-OTG-CLEAR": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.573934002546594,
+      "error": null
+    },
+    {
+      "id": "q25",
+      "query": "an adhesive for ABS pipe joints",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "CEMENT-ABS-250"
+      ],
+      "hits": [
+        "CEMENT-ABS-250",
+        "CEMENT-PVC-250",
+        "TUBE-HS-31",
+        "MAG-WELD-90"
+      ],
+      "grades": {
+        "CEMENT-ABS-250": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.431080993963405,
+      "error": null
+    },
+    {
+      "id": "q26",
+      "query": "masking tape that does not leave sticky marks",
+      "tags": [
+        "natural_lang",
+        "negation"
+      ],
+      "expected": [
+        "TAPE-MASK-LOW"
+      ],
+      "hits": [
+        "TAPE-MASK-LOW",
+        "TAPE-MASK-HIGH",
+        "TAPE-PTFE-GAS",
+        "TAPE-PTFE-12"
+      ],
+      "grades": {
+        "TAPE-MASK-LOW": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 26.774734986247495,
+      "error": null
+    },
+    {
+      "id": "q27",
+      "query": "what will remove a snapped m6 bolt from an engine case",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "EXTRACT-BOLT-SET"
+      ],
+      "hits": [
+        "BOLT-M12-80",
+        "EXTRACT-BOLT-SET",
+        "BOLT-ZP-M12-35",
+        "BOLT-SS304-M12-40",
+        "BOLT-SS316-M12-40"
+      ],
+      "grades": {
+        "EXTRACT-BOLT-SET": 1.0
+      },
+      "rank": 2,
+      "metrics": {
+        "ndcg@10": 0.6309297535714575,
+        "mrr@10": 0.5,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 26.90382898435928,
+      "error": null
+    },
+    {
+      "id": "q28",
+      "query": "graphite lubricant without any oil for locks",
+      "tags": [
+        "natural_lang",
+        "negation"
+      ],
+      "expected": [
+        "LUBE-GRAPH-18",
+        "LUBE-PTFE-DRY"
+      ],
+      "hits": [
+        "LUBE-GRAPH-18",
+        "LUBE-PTFE-DRY",
+        "LUBE-PEN-OIL"
+      ],
+      "grades": {
+        "LUBE-GRAPH-18": 3.0,
+        "LUBE-PTFE-DRY": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 25.773433007998392,
+      "error": null
+    },
+    {
+      "id": "q29",
+      "query": "a stainless clamp for a 32 mm hose",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "CLAMP-SS-25-40",
+        "CLAMP-SS-30-45"
+      ],
+      "hits": [
+        "CLAMP-SS-25-40",
+        "CLAMP-SS-30-45",
+        "CLAMP-ZP-25-40",
+        "BOLT-SS304-M12-40",
+        "BOLT-SS316-M12-40",
+        "HXN-SS304-M12",
+        "POLISH-SS-100",
+        "WASH-M12-SS304",
+        "NUT-LOCK-M12-316",
+        "ROD-SS316-M12"
+      ],
+      "grades": {
+        "CLAMP-SS-25-40": 3.0,
+        "CLAMP-SS-30-45": 2.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 25.49013201496564,
+      "error": null
+    },
+    {
+      "id": "q30",
+      "query": "keep two sheets together when welding at 90 degrees",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "MAG-WELD-90"
+      ],
+      "hits": [
+        "MAG-WELD-90"
+      ],
+      "grades": {
+        "MAG-WELD-90": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.5232559973374,
+      "error": null
+    },
+    {
+      "id": "q31",
+      "query": "pnuematic quik connector 1/4 inch",
+      "tags": [
+        "natural_lang",
+        "typo"
+      ],
+      "expected": [
+        "AIR-COUP-14"
+      ],
+      "hits": [
+        "AIR-COUP-14",
+        "AIR-COUP-38"
+      ],
+      "grades": {
+        "AIR-COUP-14": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 24.03938802308403,
+      "error": null
+    },
+    {
+      "id": "q32",
+      "query": "size large work gloves for handling sharp sheet metal",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "GLV-CUT-L"
+      ],
+      "hits": [
+        "GLV-CUT-L",
+        "MAG-WELD-90",
+        "SHEET-EPDM-2",
+        "GOGGLE-TINT",
+        "GLV-NTR-L-BLK",
+        "POLISH-SS-100"
+      ],
+      "grades": {
+        "GLV-CUT-L": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 23.53982499334961,
+      "error": null
+    },
+    {
+      "id": "q33",
+      "query": "remove paint and rust from a steel angle without grinding it down",
+      "tags": [
+        "natural_lang",
+        "negation"
+      ],
+      "expected": [
+        "DISC-STRIP-115"
+      ],
+      "hits": [
+        "DISC-GRIND-115",
+        "DISC-STRIP-115",
+        "MAG-WELD-90",
+        "HXN-SS304-M12",
+        "POLISH-SS-100",
+        "WASH-M12-SS304",
+        "ROD-SS316-M12",
+        "HXN-SS316-M12",
+        "BOLT-SS304-M12-40",
+        "WASH-M12-SS316"
+      ],
+      "grades": {
+        "DISC-STRIP-115": 1.0
+      },
+      "rank": 2,
+      "metrics": {
+        "ndcg@10": 0.6309297535714575,
+        "mrr@10": 0.5,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 10.826666984939948,
+      "error": null
+    },
+    {
+      "id": "q34",
+      "query": "get a shiny finish on stainless steel by hand",
+      "tags": [
+        "natural_lang"
+      ],
+      "expected": [
+        "POLISH-SS-100",
+        "CLOTH-MICRO-03"
+      ],
+      "hits": [
+        "POLISH-SS-100",
+        "HXN-SS304-M12",
+        "WASH-M12-SS304",
+        "ROD-SS316-M12",
+        "HXN-SS316-M12",
+        "BOLT-SS304-M12-40",
+        "WASH-M12-SS316",
+        "CLAMP-SS-30-45",
+        "CLOTH-MICRO-03",
+        "BOLT-SS316-M12-40"
+      ],
+      "grades": {
+        "POLISH-SS-100": 3.0,
+        "CLOTH-MICRO-03": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 0.9567680782603095,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 10.301800008164719,
+      "error": null
+    },
+    {
+      "id": "q35",
+      "query": "small lable that stays readable outdoors in rain",
+      "tags": [
+        "natural_lang",
+        "typo"
+      ],
+      "expected": [
+        "LABEL-VINYL-OUT"
+      ],
+      "hits": [
+        "LABEL-VINYL-OUT",
+        "LABEL-PAPER-OUT"
+      ],
+      "grades": {
+        "LABEL-VINYL-OUT": 1.0
+      },
+      "rank": 1,
+      "metrics": {
+        "ndcg@10": 1.0,
+        "mrr@10": 1.0,
+        "recall@10": 1.0,
+        "hitrate@10": 1.0
+      },
+      "latency_ms": 9.460089990170673,
+      "error": null
+    }
+  ]
+}

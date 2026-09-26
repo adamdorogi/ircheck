@@ -1,0 +1,15 @@
+dataset: golden_queries.jsonl
+k: 10
+concurrency: 8
+max_drop: 0.03
+tag_max_drop:
+  exact_sku: 0.05
+
+target:
+  type: http
+  url: http://localhost:8089/search
+  method: POST
+  query_template:
+    query: $query
+    k: $k
+  id_path: results[].id

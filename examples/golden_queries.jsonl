@@ -1,0 +1,35 @@
+{"id":"q01","query":"DRV-TX25-50","tags":["exact_sku"],"relevant":["DRV-TX25-50"]}
+{"id":"q02","query":"FLT-N95-20","tags":["exact_sku"],"relevant":["FLT-N95-20"]}
+{"id":"q03","query":"GLV-NTR-L-BLK","tags":["exact_sku"],"relevant":["GLV-NTR-L-BLK"]}
+{"id":"q04","query":"HXN-SS316-M12","tags":["exact_sku"],"relevant":["HXN-SS316-M12"]}
+{"id":"q05","query":"SEAL-EPDM-044","tags":["exact_sku"],"relevant":["SEAL-EPDM-044"]}
+{"id":"q06","query":"BRG-6205-2RS","tags":["exact_sku"],"relevant":["BRG-6205-2RS"]}
+{"id":"q07","query":"TAPE-PTFE-12","tags":["exact_sku"],"relevant":["TAPE-PTFE-12"]}
+{"id":"q08","query":"WASH-M12-SS316","tags":["exact_sku"],"relevant":["WASH-M12-SS316"]}
+{"id":"q09","query":"BIT-HSS-065","tags":["exact_sku"],"relevant":["BIT-HSS-065"]}
+{"id":"q10","query":"ANCH-M10-80","tags":["exact_sku"],"relevant":["ANCH-M10-80"]}
+{"id":"q11","query":"Allen key 5 mm","tags":["synonym"],"relevant":{"HEX-KEY-05":3,"HEX-KEY-SET-09":1}}
+{"id":"q12","query":"zip ties UV black","tags":["synonym"],"relevant":{"TIE-UV-200":3,"TIE-UV-300":2}}
+{"id":"q13","query":"mole grips curved jaw","tags":["synonym"],"relevant":["PLIER-LOCK-250"]}
+{"id":"q14","query":"roll pin 4 mm","tags":["synonym"],"relevant":{"PIN-SPR-04":3,"PIN-SPR-SET":1}}
+{"id":"q15","query":"Teflon tape for water fittings","tags":["synonym"],"relevant":["TAPE-PTFE-12"]}
+{"id":"q16","query":"circlip pliers internal","tags":["synonym"],"relevant":["PLIER-RING-INT"]}
+{"id":"q17","query":"split lock washer m12","tags":["synonym"],"relevant":["WASH-M12-SPR"]}
+{"id":"q18","query":"shrink sleeve 3:1","tags":["synonym"],"relevant":["TUBE-HS-31"]}
+{"id":"q19","query":"rubber grommet 22 mm","tags":["synonym"],"relevant":["GROM-22-EPDM"]}
+{"id":"q20","query":"rawl plug 8 mm masonry","tags":["synonym"],"relevant":["PLUG-MASON-08"]}
+{"id":"q21","query":"which filter fits a half mask for spray painting","tags":["natural_lang"],"relevant":{"FLT-A2P3-02":3,"MASK-HALF-M":1}}
+{"id":"q22","query":"hex nuts for a seawater pump with m12 threads","tags":["natural_lang"],"relevant":{"HXN-SS316-M12":3,"NUT-LOCK-M12-316":2}}
+{"id":"q23","query":"what will keep rain out of a panel cable hole","tags":["natural_lang"],"relevant":{"GLAND-IP68-M20":3,"GROM-22-EPDM":1}}
+{"id":"q24","query":"saftey gogles over glasses","tags":["natural_lang","typo"],"relevant":["GOGGLE-OTG-CLEAR"]}
+{"id":"q25","query":"an adhesive for ABS pipe joints","tags":["natural_lang"],"relevant":["CEMENT-ABS-250"]}
+{"id":"q26","query":"masking tape that does not leave sticky marks","tags":["natural_lang","negation"],"relevant":["TAPE-MASK-LOW"]}
+{"id":"q27","query":"what will remove a snapped m6 bolt from an engine case","tags":["natural_lang"],"relevant":["EXTRACT-BOLT-SET"]}
+{"id":"q28","query":"graphite lubricant without any oil for locks","tags":["natural_lang","negation"],"relevant":{"LUBE-GRAPH-18":3,"LUBE-PTFE-DRY":1}}
+{"id":"q29","query":"a stainless clamp for a 32 mm hose","tags":["natural_lang"],"relevant":{"CLAMP-SS-25-40":3,"CLAMP-SS-30-45":2}}
+{"id":"q30","query":"keep two sheets together when welding at 90 degrees","tags":["natural_lang"],"relevant":["MAG-WELD-90"]}
+{"id":"q31","query":"pnuematic quik connector 1/4 inch","tags":["natural_lang","typo"],"relevant":["AIR-COUP-14"]}
+{"id":"q32","query":"size large work gloves for handling sharp sheet metal","tags":["natural_lang"],"relevant":["GLV-CUT-L"]}
+{"id":"q33","query":"remove paint and rust from a steel angle without grinding it down","tags":["natural_lang","negation"],"relevant":["DISC-STRIP-115"]}
+{"id":"q34","query":"get a shiny finish on stainless steel by hand","tags":["natural_lang"],"relevant":{"POLISH-SS-100":3,"CLOTH-MICRO-03":1}}
+{"id":"q35","query":"small lable that stays readable outdoors in rain","tags":["natural_lang","typo"],"relevant":["LABEL-VINYL-OUT"]}
