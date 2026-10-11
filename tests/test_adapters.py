@@ -80,3 +80,23 @@ def test_empty_list_is_a_hitless_response_but_malformed_paths_fail() -> None:
         extract_ids({"hits": [True]}, "hits")
 
 
+def sync_search(text: str, k: int) -> tuple[int, str]:
+    assert (text, k) == ("m12 bolt", 10)
+    return 101, "BOLT-1"
+
+
+async def async_search(text: str, k: int) -> list[str]:
+    assert (text, k) == ("m12 bolt", 10)
+    return ["BOLT-1"]
+
+
+@pytest.mark.parametrize(("fn", "rank"), [("sync_search", 2), ("async_search", 1)])
+def test_python_target_handles_sync_and_async_callables(fn: str, rank: int) -> None:
+    suite = Suite.model_validate(
+        {"dataset": "queries.jsonl", "target": {"type": "python", "callable": f"{__name__}:{fn}"}}
+    )
+    snapshot = asyncio.run(runner.run_suite(suite, [query()]))
+    assert snapshot.queries[0].rank == rank
+    assert snapshot.metrics["mrr@10"] == 1 / rank
+
+

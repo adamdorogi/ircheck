@@ -61,7 +61,12 @@ class OpenSearchTarget(ConfigModel):
     id_path: NonEmpty | None = None
 
 
-Target = Annotated[HttpTarget | OpenSearchTarget, Field(discriminator="type")]
+class PythonTarget(ConfigModel):
+    type: Literal["python"]
+    callable: Annotated[str, StringConstraints(pattern=r"^[\w.]+:[\w.]+$")]
+
+
+Target = Annotated[HttpTarget | OpenSearchTarget | PythonTarget, Field(discriminator="type")]
 
 
 class Suite(ConfigModel):

@@ -11,7 +11,8 @@ from pydantic import Field, model_validator
 
 from .adapters.http import HttpAdapter
 from .adapters.opensearch import OpenSearchAdapter
-from .config import QUALITY_METRICS, ConfigModel, Grade, HttpTarget, Query, Suite
+from .adapters.python import PythonAdapter
+from .config import QUALITY_METRICS, ConfigModel, Grade, HttpTarget, PythonTarget, Query, Suite
 from .metrics import first_relevant_rank, percentile, positive_grades, score_at_k, unique_ids
 
 
@@ -123,22 +124,27 @@ async def run_suite(
     async with AsyncExitStack() as stack:
         target = suite.target
         adapter: Adapter
-        client = await stack.enter_async_context(
-            httpx.AsyncClient(
-                timeout=suite.timeout,
-                transport=transport,
-                limits=httpx.Limits(
-                    max_connections=concurrency, max_keepalive_connections=concurrency
-                ),
+        if isinstance(target, PythonTarget):
+            adapter = PythonAdapter(target)
+            target_label = target.callable
+
+        else:
+            client = await stack.enter_async_context(
+                httpx.AsyncClient(
+                    timeout=suite.timeout,
+                    transport=transport,
+                    limits=httpx.Limits(
+                        max_connections=concurrency, max_keepalive_connections=concurrency
+                    ),
+                )
             )
-        )
-        adapter = (
-            HttpAdapter(client, target)
-            if isinstance(target, HttpTarget)
-            else OpenSearchAdapter(client, target)
-        )
-        url = httpx.URL(str(adapter.target.url))
-        target_label = str(url.copy_with(username=None, password=None, query=None, fragment=None))
+            adapter = (
+                HttpAdapter(client, target)
+                if isinstance(target, HttpTarget)
+                else OpenSearchAdapter(client, target)
+            )
+            url = httpx.URL(str(adapter.target.url))
+            target_label = str(url.copy_with(username=None, password=None, query=None, fragment=None))
 
 
         async def retrieve(query: Query) -> tuple[list[str], float | None, str | None]:
