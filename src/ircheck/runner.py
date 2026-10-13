@@ -112,13 +112,15 @@ async def run_suite(
     queries: Sequence[Query],
     *,
     concurrency: int | None = None,
+    warmup: int | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> Snapshot:
     concurrency = suite.concurrency if concurrency is None else concurrency
+    warmup = suite.warmup if warmup is None else warmup
     if not queries:
         raise ValueError("no queries to evaluate")
-    if concurrency < 1:
-        raise ValueError("concurrency must be positive")
+    if concurrency < 1 or warmup < 0:
+        raise ValueError("concurrency must be positive and warmup must be nonnegative")
 
     semaphore = asyncio.Semaphore(concurrency)
     async with AsyncExitStack() as stack:
@@ -151,6 +153,9 @@ async def run_suite(
             async with semaphore:
                 return await _retrieve(adapter, query.query, suite.k)
 
+        if warmup:
+            await asyncio.gather(*(retrieve(queries[i % len(queries)]) for i in range(warmup)))
+
         started = time.perf_counter()
         outputs = await asyncio.gather(*(retrieve(query) for query in queries))
         elapsed_s = time.perf_counter() - started
@@ -178,7 +183,7 @@ async def run_suite(
         target=target_label,
         k=suite.k,
         concurrency=concurrency,
-        warmup=0,
+        warmup=warmup,
         elapsed_s=elapsed_s,
         metrics=scores,
         tags=tags,

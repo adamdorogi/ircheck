@@ -100,3 +100,34 @@ def test_python_target_handles_sync_and_async_callables(fn: str, rank: int) -> N
     assert snapshot.metrics["mrr@10"] == 1 / rank
 
 
+def test_runner_bounds_concurrency_and_excludes_warmup_hits() -> None:
+    suite = Suite.model_validate(
+        {"dataset": "queries.jsonl", "target": {"type": "http", "url": "http://search.test"}}
+    )
+    active = 0
+    peak = 0
+    calls: list[str] = []
+
+    async def handle(request: httpx.Request) -> httpx.Response:
+        nonlocal active, peak
+        calls.append(json.loads(request.content)["query"])
+        warming = len(calls) <= 3
+        active += 1
+        peak = max(peak, active)
+        await asyncio.sleep(0)
+        active -= 1
+        return httpx.Response(200, json={"results": [{"id": "MISS" if warming else "BOLT-1"}]})
+
+    queries = [query("first", "q1"), query("second", "q2")]
+    snapshot = asyncio.run(
+        runner.run_suite(
+            suite, queries, concurrency=2, warmup=3, transport=httpx.MockTransport(handle)
+        )
+    )
+    assert peak == 2
+    assert calls == ["first", "second", "first", "first", "second"]
+    assert [result.id for result in snapshot.queries] == ["q1", "q2"]
+    assert snapshot.metrics["ndcg@10"] == 1.0
+    assert snapshot.warmup == 3
+
+

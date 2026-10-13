@@ -1,6 +1,7 @@
 dataset: golden_queries.jsonl
 k: 10
 concurrency: 8
+warmup: 3
 max_drop: 0.03
 tag_max_drop:
   exact_sku: 0.05

@@ -36,6 +36,7 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--save-baseline", type=Path, help="save a complete run for later comparison")
     run.add_argument("--output", type=Path, help="write the run snapshot to a file")
     run.add_argument("--concurrency", type=int, help="override maximum concurrent queries")
+    run.add_argument("--warmup", type=int, help="override number of unmeasured warmup queries")
 
     diff = commands.add_parser("diff", help="compare two saved snapshots")
     diff.add_argument("baseline", type=Path)
@@ -164,7 +165,7 @@ def _print_comparison(terminal: Terminal, report: Comparison) -> None:
 def _print_run(terminal: Terminal, snapshot: Snapshot) -> None:
     terminal.line(
         f"ircheck {__version__}  target={printable(snapshot.target)} "
-        f"(k={snapshot.k}, concurrency={snapshot.concurrency})"
+        f"(k={snapshot.k}, concurrency={snapshot.concurrency}, warmup={snapshot.warmup})"
     )
     latency = []
     for label in ("p50", "p95"):
@@ -212,7 +213,7 @@ def _run(args: argparse.Namespace, terminal: Terminal) -> int:
     queries = _select(suite, args.tag)
     baseline = _slice_snapshot(_load_snapshot(args.baseline), args.tag) if args.baseline else None
     snapshot = asyncio.run(
-        run_suite(suite, queries, concurrency=args.concurrency)
+        run_suite(suite, queries, concurrency=args.concurrency, warmup=args.warmup)
     )
     report = None
     if not snapshot.errors:

@@ -74,6 +74,7 @@ class Suite(ConfigModel):
     target: Target
     k: int = Field(default=10, gt=0, strict=True)
     concurrency: int = Field(default=8, gt=0, strict=True)
+    warmup: int = Field(default=0, ge=0, strict=True)
     timeout: float = Field(default=10.0, gt=0, strict=True)
     max_drop: Fraction = 0.02
     tag_max_drop: dict[NonEmpty, Fraction] = Field(default_factory=dict)
