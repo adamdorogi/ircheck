@@ -1,5 +1,6 @@
 import os
 from collections.abc import Collection, Sequence
+from pathlib import Path
 from typing import TextIO
 
 
@@ -63,3 +64,7 @@ class Terminal:
             self.line("  ".join(cells))
 
 
+def append_summary(markdown: str) -> None:
+    if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with Path(summary).open("a", encoding="utf-8") as stream:
+            stream.write(markdown.rstrip() + "\n\n")

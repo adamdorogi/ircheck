@@ -4,6 +4,7 @@ import json
 import sys
 from collections.abc import Sequence
 from dataclasses import asdict
+from html import escape
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -11,7 +12,7 @@ from ircheck import __version__
 from ircheck.config import QUALITY_METRICS, Query, Suite, load_queries, load_suite
 from ircheck.diff import Comparison, compare_snapshots
 from ircheck.runner import Snapshot, run_suite, summarize
-from ircheck.term import Terminal, printable
+from ircheck.term import Terminal, append_summary, printable
 
 
 def _fraction(value: str) -> float:
@@ -202,6 +203,44 @@ def _finish(terminal: Terminal, failures: int) -> int:
     return 0
 
 
+def _markdown_label(value: str) -> str:
+    return (
+        escape(printable(value))
+        .replace("\\", "\\\\")
+        .replace("|", "\\|")
+        .replace("[", "\\[")
+        .replace("]", "\\]")
+    )
+
+
+def _summary(
+    snapshot: Snapshot,
+    report: Comparison | None,
+) -> str:
+    lines = [
+        f"### ircheck {_markdown_label(snapshot.target)}",
+        "",
+        "| Scope | Metric | Reference | Current | Delta | Gate |",
+        "| --- | --- | ---: | ---: | ---: | --- |",
+    ]
+    if report is None:
+        for metric, value in snapshot.metrics.items():
+            lines.append(f"| overall | {metric} | | {value:.4f} | | |")
+    else:
+        scopes = [("overall", report.overall)] + [
+            (f"{_markdown_label(tag.tag)} (n={tag.count})", tag.metrics) for tag in report.tags
+        ]
+        for scope, metrics in scopes:
+            for row in metrics:
+                gate = "FAIL" if row.failed else "PASS"
+                lines.append(
+                    f"| {scope} | {row.metric} | {row.baseline:.4f} | {row.current:.4f} | {_delta_text(row.delta)} | {gate} |"
+                )
+    if snapshot.errors:
+        lines.extend(("", f"Query errors: {snapshot.errors} (exit 2)."))
+    return "\n".join(lines)
+
+
 def _report_errors(snapshot: Snapshot) -> None:
     for query in snapshot.queries:
         if query.error is not None:
@@ -229,6 +268,8 @@ def _run(args: argparse.Namespace, terminal: Terminal) -> int:
         _write(args.output, data)
     if args.save_baseline and not snapshot.errors:
         _write(args.save_baseline, data)
+    if args.gh_summary:
+        append_summary(_summary(snapshot, report))
     if args.json:
         terminal.line(data)
     else:
@@ -254,6 +295,8 @@ def _diff(args: argparse.Namespace, terminal: Terminal) -> int:
     report = compare_snapshots(
         baseline, current, max_drop=0.02 if args.max_drop is None else args.max_drop
     )
+    if args.gh_summary:
+        append_summary(_summary(current, report))
     if args.json:
         terminal.line(json.dumps(_report_dict(report), indent=2))
         return int(bool(report.failures))

@@ -111,3 +111,11 @@ def test_no_color_for_terminal(monkeypatch: pytest.MonkeyPatch) -> None:
     assert Terminal(StringIO()).status("FAIL") == "FAIL"
     monkeypatch.setenv("NO_COLOR", "1")
     assert Terminal(Interactive()).status("FAIL") == "FAIL"
+
+
+def test_summary(tmp_path: Path) -> None:
+    summary = tmp_path / "summary.md"
+    suite = write_suite(tmp_path, "correct")
+    run = invoke("run", suite, "--gh-summary", env={"GITHUB_STEP_SUMMARY": str(summary)})
+    assert run.returncode == 0, run.stderr
+    assert "| overall | ndcg@2 | | 1.0000 | | |" in summary.read_text()
