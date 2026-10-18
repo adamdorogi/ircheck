@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.12", "3.14"]
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked mypy
+      - run: uv run --locked pytest -q
+      - name: Gate both fixture modes
+        shell: bash
+        run: |
+          for mode in bm25 hybrid; do
+            (
+              .venv/bin/python examples/mock_server.py --mode "$mode" &
+              server_pid=$!
+              trap 'kill "$server_pid"; wait "$server_pid" || true' EXIT
+              curl --fail --silent --show-error --retry 12 --retry-all-errors \
+                --retry-delay 1 --max-time 1 http://127.0.0.1:8089/health >/dev/null
+
+              expected=0
+              if [[ "$mode" == hybrid ]]; then
+                expected=1
+              fi
+              status=0
+              uv run --locked ircheck run examples/suite.yaml \
+                --baseline examples/baseline.json --gh-summary || status=$?
+              if [[ "$status" != "$expected" ]]; then
+                echo "$mode fixture returned $status, expected $expected" >&2
+                exit 1
+              fi
+            )
+          done
