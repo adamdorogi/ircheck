@@ -131,3 +131,52 @@ def test_runner_bounds_concurrency_and_excludes_warmup_hits() -> None:
     assert snapshot.warmup == 3
 
 
+def test_runner_retries_rate_limits_and_service_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    suite = Suite.model_validate(
+        {
+            "dataset": "queries.jsonl",
+            "retries": 2,
+            "target": {"type": "http", "url": "http://search.test"},
+        }
+    )
+    statuses = iter([429, 503, 200])
+    delays: list[tuple[float, float]] = []
+
+    def sample_delay(low: float, high: float) -> float:
+        delays.append((low, high))
+        return 0.0
+
+    def handle(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(next(statuses), json={"results": [{"id": "BOLT-1"}]})
+
+    monkeypatch.setattr(runner.random, "uniform", sample_delay)
+    snapshot = asyncio.run(
+        runner.run_suite(suite, [query()], transport=httpx.MockTransport(handle))
+    )
+    assert delays == [(0.025, 0.05), (0.05, 0.1)]
+    assert snapshot.errors == 0
+    assert snapshot.metrics["recall@10"] == 1.0
+
+
+def test_runner_records_permanent_http_errors_without_retrying() -> None:
+    suite = Suite.model_validate(
+        {
+            "dataset": "queries.jsonl",
+            "retries": 1,
+            "target": {"type": "http", "url": "http://search.test"},
+        }
+    )
+    calls = 0
+
+    def handle(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(400)
+
+    snapshot = asyncio.run(
+        runner.run_suite(suite, [query()], transport=httpx.MockTransport(handle))
+    )
+    assert calls == snapshot.errors == 1
+    assert snapshot.queries[0].error == "HTTP 400 Bad Request"
+    assert snapshot.queries[0].latency_ms is None
+    assert snapshot.metrics["recall@10"] == 0.0
