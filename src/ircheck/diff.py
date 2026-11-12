@@ -52,8 +52,25 @@ class Comparison:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class Threshold:
+    metric: str
+    current: float
+    minimum: float
+    failed: bool
+
+
 def _below(value: float, limit: float) -> bool:
     return value < limit and not isclose(value, limit, rel_tol=0, abs_tol=1e-12)
+
+
+def check_thresholds(snapshot: Snapshot, minimums: Mapping[str, float]) -> tuple[Threshold, ...]:
+    return tuple(
+        Threshold(
+            metric, snapshot.metrics[metric], minimum, _below(snapshot.metrics[metric], minimum)
+        )
+        for metric, minimum in sorted(minimums.items())
+    )
 
 
 def _metrics(

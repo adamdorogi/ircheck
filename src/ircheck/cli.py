@@ -9,8 +9,8 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from ircheck import __version__
-from ircheck.config import QUALITY_METRICS, Query, Suite, load_queries, load_suite
-from ircheck.diff import Comparison, compare_snapshots
+from ircheck.config import QUALITY_METRICS, Query, Suite, load_queries, load_suite, normalize_metric
+from ircheck.diff import Comparison, Threshold, check_thresholds, compare_snapshots
 from ircheck.runner import Snapshot, run_suite, summarize
 from ircheck.term import Terminal, append_summary, printable
 
@@ -38,6 +38,13 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--output", type=Path, help="write the run snapshot to a file")
     run.add_argument("--concurrency", type=int, help="override maximum concurrent queries")
     run.add_argument("--warmup", type=int, help="override number of unmeasured warmup queries")
+    run.add_argument(
+        "--fail-under",
+        action="append",
+        default=[],
+        metavar="METRIC=MINIMUM",
+        help="require an overall score, repeatable",
+    )
 
     diff = commands.add_parser("diff", help="compare two saved snapshots")
     diff.add_argument("baseline", type=Path)
@@ -100,6 +107,19 @@ def _slice_snapshot(snapshot: Snapshot, tags: Sequence[str]) -> Snapshot:
     queries = [query for query in snapshot.queries if set(tags).intersection(query.tags)]
     metrics, groups = summarize(queries, snapshot.k)
     return snapshot.model_copy(update={"queries": queries, "metrics": metrics, "tags": groups})
+
+
+def _parse_thresholds(suite: Suite, specifications: Sequence[str]) -> dict[str, float]:
+    minimums = dict(suite.fail_under)
+    for specification in specifications:
+        name, separator, value = specification.partition("=")
+        if not separator:
+            raise ValueError(f"invalid threshold {specification!r}. Use METRIC=MINIMUM")
+        try:
+            minimums[normalize_metric(name, suite.k)] = _fraction(value)
+        except (ValueError, argparse.ArgumentTypeError) as error:
+            raise ValueError(f"invalid threshold {specification!r}: {error}") from error
+    return minimums
 
 
 def _rank(rank: int | None, k: int) -> str:
@@ -193,6 +213,25 @@ def _print_scores(terminal: Terminal, snapshot: Snapshot) -> None:
         )
 
 
+def _print_thresholds(terminal: Terminal, thresholds: Sequence[Threshold]) -> None:
+    if thresholds:
+        terminal.line()
+        terminal.table(
+            ("METRIC", "CURRENT", "MINIMUM", "GATE"),
+            [
+                (
+                    row.metric,
+                    f"{row.current:.4f}",
+                    f"{row.minimum:.4f}",
+                    "FAIL" if row.failed else "PASS",
+                )
+                for row in thresholds
+            ],
+            right=(1, 2),
+            gate=True,
+        )
+
+
 def _finish(terminal: Terminal, failures: int) -> int:
     terminal.line()
     if failures:
@@ -216,6 +255,7 @@ def _markdown_label(value: str) -> str:
 def _summary(
     snapshot: Snapshot,
     report: Comparison | None,
+    thresholds: Sequence[Threshold] = (),
 ) -> str:
     lines = [
         f"### ircheck {_markdown_label(snapshot.target)}",
@@ -236,6 +276,11 @@ def _summary(
                 lines.append(
                     f"| {scope} | {row.metric} | {row.baseline:.4f} | {row.current:.4f} | {_delta_text(row.delta)} | {gate} |"
                 )
+    for threshold in thresholds:
+        gate = "FAIL" if threshold.failed else "PASS"
+        lines.append(
+            f"| minimum | {threshold.metric} | {threshold.minimum:.4f} | {threshold.current:.4f} | | {gate} |"
+        )
     if snapshot.errors:
         lines.extend(("", f"Query errors: {snapshot.errors} (exit 2)."))
     return "\n".join(lines)
@@ -250,12 +295,15 @@ def _report_errors(snapshot: Snapshot) -> None:
 def _run(args: argparse.Namespace, terminal: Terminal) -> int:
     suite = load_suite(args.suite)
     queries = _select(suite, args.tag)
+    minimums = _parse_thresholds(suite, args.fail_under)
     baseline = _slice_snapshot(_load_snapshot(args.baseline), args.tag) if args.baseline else None
     snapshot = asyncio.run(
         run_suite(suite, queries, concurrency=args.concurrency, warmup=args.warmup)
     )
     report = None
+    thresholds: tuple[Threshold, ...] = ()
     if not snapshot.errors:
+        thresholds = check_thresholds(snapshot, minimums)
         if baseline is not None:
             report = compare_snapshots(
                 baseline,
@@ -269,7 +317,7 @@ def _run(args: argparse.Namespace, terminal: Terminal) -> int:
     if args.save_baseline and not snapshot.errors:
         _write(args.save_baseline, data)
     if args.gh_summary:
-        append_summary(_summary(snapshot, report))
+        append_summary(_summary(snapshot, report, thresholds))
     if args.json:
         terminal.line(data)
     else:
@@ -278,10 +326,13 @@ def _run(args: argparse.Namespace, terminal: Terminal) -> int:
             _print_comparison(terminal, report)
         elif not snapshot.errors:
             _print_scores(terminal, snapshot)
+        _print_thresholds(terminal, thresholds)
     if snapshot.errors:
         _report_errors(snapshot)
         return 2
-    failures = (report.failures if report is not None else 0)
+    failures = (report.failures if report is not None else 0) + sum(
+        row.failed for row in thresholds
+    )
     return int(bool(failures)) if args.json else _finish(terminal, failures)
 
 

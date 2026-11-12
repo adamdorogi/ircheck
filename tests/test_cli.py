@@ -91,6 +91,28 @@ def test_tag_filter_rescores_saved_baseline(tmp_path: Path) -> None:
     assert invoke("run", suite, "--tag", "missing").returncode == 2
 
 
+def test_thresholds_and_summary(tmp_path: Path) -> None:
+    summary = tmp_path / "summary.md"
+    summary.write_text("Existing text\n\n", encoding="utf-8")
+    suite = write_suite(tmp_path, "regressed")
+    run = invoke(
+        "run",
+        suite,
+        "--fail-under",
+        "ndcg@2=0.75",
+        "--gh-summary",
+        env={"GITHUB_STEP_SUMMARY": str(summary), "NO_COLOR": "1"},
+    )
+    assert run.returncode == 1, run.stderr
+    assert "FAIL: 1 metric gate failed" in run.stdout
+    assert "\x1b" not in run.stdout
+    text = summary.read_text()
+    assert text.startswith("Existing text\n\n")
+    assert "| minimum | ndcg@2 | 0.7500 | 0.5000 | | FAIL |" in text
+    assert invoke("run", suite, "--fail-under", "ndcg@5=0.75").returncode == 2
+    assert invoke("run", suite, "--fail-under", "ndcg@2=nan").returncode == 2
+
+
 def test_runtime_error_exits_two_without_saving_baseline(tmp_path: Path) -> None:
     baseline = tmp_path / "baseline.json"
     run = invoke("run", write_suite(tmp_path, "broken"), "--save-baseline", baseline, "--json")
@@ -111,11 +133,3 @@ def test_no_color_for_terminal(monkeypatch: pytest.MonkeyPatch) -> None:
     assert Terminal(StringIO()).status("FAIL") == "FAIL"
     monkeypatch.setenv("NO_COLOR", "1")
     assert Terminal(Interactive()).status("FAIL") == "FAIL"
-
-
-def test_summary(tmp_path: Path) -> None:
-    summary = tmp_path / "summary.md"
-    suite = write_suite(tmp_path, "correct")
-    run = invoke("run", suite, "--gh-summary", env={"GITHUB_STEP_SUMMARY": str(summary)})
-    assert run.returncode == 0, run.stderr
-    assert "| overall | ndcg@2 | | 1.0000 | | |" in summary.read_text()

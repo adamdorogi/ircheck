@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
 import yaml
 from pydantic import (
@@ -10,6 +10,7 @@ from pydantic import (
     JsonValue,
     StringConstraints,
     field_validator,
+    model_validator,
 )
 
 QUALITY_METRICS = ("ndcg", "mrr", "recall", "hitrate")
@@ -78,7 +79,29 @@ class Suite(ConfigModel):
     timeout: float = Field(default=10.0, gt=0, strict=True)
     retries: int = Field(default=0, ge=0, strict=True)
     max_drop: Fraction = 0.02
+    fail_under: dict[str, Fraction] = Field(default_factory=dict)
     tag_max_drop: dict[NonEmpty, Fraction] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def normalize_thresholds(self) -> Self:
+        thresholds: dict[str, float] = {}
+        for name, threshold in self.fail_under.items():
+            metric = normalize_metric(name, self.k)
+            if metric in thresholds:
+                raise ValueError(f"duplicate threshold for {metric}")
+            thresholds[metric] = threshold
+        self.fail_under = thresholds
+        return self
+
+
+def normalize_metric(name: str, k: int) -> str:
+    metric, separator, cutoff = name.strip().lower().partition("@")
+    if metric not in QUALITY_METRICS:
+        raise ValueError(f"unknown quality metric {name!r}")
+    if separator and cutoff not in {"k", str(k)}:
+        raise ValueError(f"metric {name!r} must use the suite cutoff @{k}")
+    return f"{metric}@{k}"
+
 
 def load_suite(path: Path) -> Suite:
     try:

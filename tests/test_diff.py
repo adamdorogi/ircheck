@@ -1,7 +1,7 @@
 import pytest
 
 from ircheck.config import QUALITY_METRICS
-from ircheck.diff import compare_snapshots
+from ircheck.diff import check_thresholds, compare_snapshots
 from ircheck.runner import QueryResult, Snapshot, summarize
 
 
@@ -50,6 +50,8 @@ def test_drop_equal_to_tolerance_passes() -> None:
     current = snapshot([0.78])
     assert compare_snapshots(baseline, current, max_drop=0.02).failures == 0
     assert compare_snapshots(baseline, current, max_drop=0.019).failures == 8
+    assert not check_thresholds(current, {"ndcg@10": 0.78})[0].failed
+    assert check_thresholds(current, {"ndcg@10": 0.79})[0].failed
 
 
 def test_worst_regressions_are_sorted_and_limited() -> None:
