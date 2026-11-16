@@ -43,6 +43,35 @@ def test_http_json_template_preserves_query_text_and_numeric_cutoff() -> None:
     assert snapshot.tags["exact_sku"].count == 1
 
 
+def test_http_get_preserves_url_params_and_supports_pointer_wildcards() -> None:
+    suite = Suite.model_validate(
+        {
+            "dataset": "queries.jsonl",
+            "target": {
+                "type": "http",
+                "method": "GET",
+                "url": "http://search.test/api/search?mode=hybrid",
+                "params": {"q": "$query", "size": "$k", "filter": ["fasteners", "$query"]},
+                "id_path": "/data/hits/*/sku~1id",
+            },
+        }
+    )
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        assert request.method == "GET"
+        assert not request.content
+        assert request.url.params["mode"] == "hybrid"
+        assert request.url.params["size"] == "10"
+        assert request.url.params.get_list("filter") == ["fasteners", "m12 bolt"]
+        return httpx.Response(200, json={"data": {"hits": [{"sku/id": "BOLT-1"}]}})
+
+    snapshot = asyncio.run(
+        runner.run_suite(suite, [query()], transport=httpx.MockTransport(handle))
+    )
+    assert snapshot.queries[0].hits == ["BOLT-1"]
+    assert snapshot.target == "http://search.test/api/search"
+
+
 @pytest.mark.parametrize(("id_field", "expected"), [("_id", "doc"), ("_source.sku", "BOLT-1")])
 def test_opensearch_uses_index_and_configured_id_field(id_field: str, expected: str) -> None:
     suite = Suite.model_validate(
@@ -74,6 +103,7 @@ def test_opensearch_uses_index_and_configured_id_field(id_field: str, expected: 
 
 def test_empty_list_is_a_hitless_response_but_malformed_paths_fail() -> None:
     assert extract_ids({"hits": []}, "hits[].doc_id") == []
+    assert extract_ids({"hits": [{"id~1": "A"}]}, "/hits/0/id~01") == ["A"]
     with pytest.raises(ValueError, match="does not match ID path"):
         extract_ids({"hits": [{}]}, "hits[].doc_id")
     with pytest.raises(ValueError, match="document IDs"):

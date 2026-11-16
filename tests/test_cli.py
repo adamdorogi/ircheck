@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from ircheck.config import load_queries, load_suite
 from ircheck.term import Terminal
 
 
@@ -120,6 +121,19 @@ def test_runtime_error_exits_two_without_saving_baseline(tmp_path: Path) -> None
     assert "retriever unavailable" in run.stderr
     assert json.loads(run.stdout)["queries"][0]["error"]
     assert not baseline.exists()
+
+
+def test_sweep_alias_and_init(tmp_path: Path) -> None:
+    init = tmp_path / "new"
+    assert invoke("init", init).returncode == 0
+    assert load_queries(load_suite(init / "suite.yaml").dataset)[0].id == "q01"
+    assert invoke("init", init).returncode == 2
+
+    sweep = invoke(
+        "compare", write_suite(tmp_path, "correct"), write_suite(tmp_path, "regressed"), "--json"
+    )
+    assert sweep.returncode == 1, sweep.stderr
+    assert json.loads(sweep.stdout)["comparisons"][1]["failures"] == 8
 
 
 def test_no_color_for_terminal(monkeypatch: pytest.MonkeyPatch) -> None:

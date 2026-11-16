@@ -37,6 +37,11 @@ def _render_params(
 
 
 def _parse_path(path: str) -> list[str | None]:
+    if path.startswith("/"):
+        if re.search(r"~(?![01])", path):
+            raise ValueError(f"invalid escape in JSON pointer {path!r}")
+        return [part.replace("~1", "/").replace("~0", "~") for part in path[1:].split("/")]
+
     steps: list[str | None] = []
     for part in path.split("."):
         key = part.removesuffix("[]")
@@ -63,10 +68,15 @@ def _extract_ids(response: object, path: str, steps: list[str | None]) -> list[s
     for step in steps:
         next_values: list[object] = []
         for value in selected:
-            if isinstance(value, list) and step is None:
+            if isinstance(value, list) and step in {None, "*"}:
                 next_values.extend(value)
             elif isinstance(value, dict) and step is not None and step in value:
                 next_values.append(value[step])
+            elif isinstance(value, list) and step is not None and step.isascii() and step.isdecimal():
+                index = int(step)
+                if str(index) != step or index >= len(value):
+                    raise ValueError(f"array index {step!r} unavailable at ID path {path!r}")
+                next_values.append(value[index])
             else:
                 raise ValueError(f"response does not match ID path {path!r}")
         selected = next_values

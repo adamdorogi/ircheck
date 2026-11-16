@@ -50,14 +50,18 @@ def _parser() -> argparse.ArgumentParser:
     diff.add_argument("baseline", type=Path)
     diff.add_argument("current", type=Path)
 
+    sweep = commands.add_parser("sweep", aliases=["compare"], help="compare multiple suites")
+    sweep.add_argument("suites", nargs="+", type=Path, metavar="SUITE")
+    sweep.add_argument("--output", type=Path, help="write the runs and comparisons to a file")
+
     init = commands.add_parser("init", help="write a starter suite and query set")
     init.add_argument("directory", nargs="?", type=Path, default=Path.cwd())
 
-    for command in (run,):
+    for command in (run, sweep):
         command.add_argument(
             "--tag", action="append", default=[], help="select queries by tag, repeatable"
         )
-    for command in (run, diff):
+    for command in (run, diff, sweep):
         command.add_argument(
             "--max-drop",
             type=_fraction,
@@ -359,6 +363,68 @@ def _diff(args: argparse.Namespace, terminal: Terminal) -> int:
     return _finish(terminal, report.failures)
 
 
+async def _run_sweep(suites: Sequence[Suite], tags: Sequence[str]) -> list[Snapshot]:
+    return [await run_suite(suite, _select(suite, tags)) for suite in suites]
+
+
+def _sweep(args: argparse.Namespace, terminal: Terminal) -> int:
+    if len(args.suites) < 2:
+        raise ValueError("sweep needs at least two suites. The first is the reference")
+    suites = [load_suite(path) for path in args.suites]
+    snapshots = asyncio.run(_run_sweep(suites, args.tag))
+    reference = snapshots[0]
+    comparisons = []
+    thresholds = []
+    for snapshot, suite in zip(snapshots, suites, strict=True):
+        report = None
+        limits = () if snapshot.errors else check_thresholds(snapshot, suite.fail_under)
+        if snapshot is not reference and not snapshot.errors and not reference.errors:
+            report = compare_snapshots(
+                reference,
+                snapshot,
+                max_drop=suite.max_drop if args.max_drop is None else args.max_drop,
+                tag_max_drop=suite.tag_max_drop,
+            )
+        comparisons.append(report)
+        thresholds.append(limits)
+    if args.json or args.output:
+        payload = {
+            "runs": [snapshot.model_dump(mode="json") for snapshot in snapshots],
+            "comparisons": [
+                _report_dict(report) if report is not None else None for report in comparisons
+            ],
+            "thresholds": [[asdict(row) for row in limits] for limits in thresholds],
+        }
+        data = json.dumps(payload, indent=2)
+        if args.output:
+            _write(args.output, data)
+        if args.json:
+            terminal.line(data)
+
+    failures = 0
+    runtime_error = False
+    for snapshot, report, limits in zip(snapshots, comparisons, thresholds, strict=True):
+        if args.gh_summary:
+            append_summary(_summary(snapshot, report, limits))
+        if not args.json:
+            _print_run(terminal, snapshot)
+            if report is not None:
+                _print_comparison(terminal, report)
+            elif not snapshot.errors:
+                _print_scores(terminal, snapshot)
+            _print_thresholds(terminal, limits)
+            terminal.line()
+        if snapshot.errors:
+            _report_errors(snapshot)
+            runtime_error = True
+        failures += (report.failures if report is not None else 0) + sum(
+            row.failed for row in limits
+        )
+    if runtime_error:
+        return 2
+    return int(bool(failures)) if args.json else _finish(terminal, failures)
+
+
 def _init(directory: Path, terminal: Terminal) -> int:
     directory.mkdir(parents=True, exist_ok=True)
     suite = directory / "suite.yaml"
@@ -392,6 +458,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _run(args, terminal)
         if args.command == "diff":
             return _diff(args, terminal)
+        if args.command in {"sweep", "compare"}:
+            return _sweep(args, terminal)
         return _init(args.directory, terminal)
     except (OSError, ValueError) as error:
         print(f"ircheck: {error}", file=sys.stderr)
