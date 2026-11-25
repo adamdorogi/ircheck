@@ -204,7 +204,7 @@ class SearchHandler(BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8089)
+    parser.add_argument("--port", type=int, default=8089, help="local port (default: %(default)s)")
     parser.add_argument("--mode", choices=("bm25", "hybrid"), default="hybrid")
     args = parser.parse_args()
     SearchHandler.hybrid = args.mode == "hybrid"
